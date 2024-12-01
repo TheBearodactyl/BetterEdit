@@ -7,8 +7,7 @@
 using namespace geode::prelude;
 
 void mgetlinef(float x1, float y1, float x2, float y2, float &a, float &b, float &c) {
-    // (x- p1X) / (p2X - p1X) = (y - p1Y) / (p2Y - p1Y) 
-    a = y1 - y2; // Note: this was incorrectly "y2 - y1" in the original answer
+    a = y1 - y2;
     b = x2 - x1;
     c = x1 * y2 - x2 * y1;
 }
@@ -16,7 +15,11 @@ void mgetlinef(float x1, float y1, float x2, float y2, float &a, float &b, float
 float mdistf(float pct1X, float pct1Y, float pct2X, float pct2Y, float pct3X, float pct3Y) {
     float a, b, c;
     mgetlinef(pct2X, pct2Y, pct3X, pct3Y, a, b, c);
-    return abs(a * pct1X + b * pct1Y + c) / sqrt(a * a + b * b);
+    
+    float numerator = std::abs(a * pct1X + b * pct1Y + c);
+    float denominator = std::hypot(a, b); 
+    
+    return numerator / denominator;
 }
 
 class $modify(DashOrbLineLayer, DrawGridLayer) {
@@ -90,10 +93,21 @@ class $modify(LevelEditorLayer) {
         LevelEditorLayer::addSpecial(obj);
         static_cast<DashOrbLineLayer*>(m_drawGridLayer)->registerDashOrb(obj);
     }
-    // todo: this hook may have an impact on load performance - if that ever becomes a reported issue, check this!
     $override
     void removeSpecial(GameObject* obj) {
+        if (obj->m_objectID != 1704 && obj->m_objectID != 1751 && obj->m_objectID != 1829) {
+            LevelEditorLayer::removeSpecial(obj);
+            return;
+        }
+
+        auto* dashOrbLayer = static_cast<DashOrbLineLayer*>(m_drawGridLayer);
+        auto& dashOrbs = dashOrbLayer->m_fields->dashOrbs;
+        auto& dashOrbEnds = dashOrbLayer->m_fields->dashOrbEnds;
+
+        if (dashOrbs.find(obj) != dashOrbs.end() || dashOrbEnds.find(obj) != dashOrbEnds.end()) {
+            dashOrbLayer->unregisterDashOrb(obj);
+        }
+
         LevelEditorLayer::removeSpecial(obj);
-        static_cast<DashOrbLineLayer*>(m_drawGridLayer)->unregisterDashOrb(obj);
     }
 };
