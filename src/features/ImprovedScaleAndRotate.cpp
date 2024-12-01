@@ -380,6 +380,10 @@ class $modify(SnappableScaleControl, GJScaleControl) {
 };
 
 class $modify(InputRotationControl, GJRotationControl) {
+private:
+    ToggleSnapButton* m_snapSizeBtn = nullptr;
+
+public:
     $override
     bool init() {
         if (!GJRotationControl::init())
@@ -423,11 +427,11 @@ class $modify(InputRotationControl, GJRotationControl) {
         menu->addChild(snapBtn);
 
         static std::array SNAPS { 10.f, 15.f, 18.f };
-        auto snapSizeBtn = ToggleSnapButton::create(SNAPS, nullptr);
-        snapSizeBtn->setEnabled(false);
-        snapSizeBtn->setIndex(1);
-        snapSizeBtn->setID("snap-lock-size"_spr);
-        menu->addChild(snapSizeBtn);
+        m_snapSizeBtn = ToggleSnapButton::create(SNAPS, nullptr);
+        m_snapSizeBtn->setEnabled(false);
+        m_snapSizeBtn->setIndex(1);
+        m_snapSizeBtn->setID("snap-lock-size"_spr);
+        menu->addChild(m_snapSizeBtn);
 
         menu->setLayout(RowLayout::create());
         menu->setPosition(110, 35);
@@ -506,11 +510,8 @@ class $modify(InputRotationControl, GJRotationControl) {
             "hjfod.betteredit/lock-menu hjfod.betteredit/pos-lock"
         ));
     }
-    // todo: this should probably be a field instead for efficiency
     ToggleSnapButton* getSnapSizeBtn() {
-        return static_cast<ToggleSnapButton*>(this->querySelector(
-            "hjfod.betteredit/lock-menu hjfod.betteredit/snap-lock-size"
-        ));
+        return m_snapSizeBtn;
     }
 };
 
