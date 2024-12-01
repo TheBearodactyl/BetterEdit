@@ -100,7 +100,7 @@ class $modify(LevelEditorLayer) {
             return;
         }
 
-        auto* dashOrbLayer = static_cast<DashOrbLineLayer*>(m_drawGridLayer);
+        auto* dashOrbLayer = dynamic_cast<DashOrbLineLayer*>(m_drawGridLayer);
         auto& dashOrbs = dashOrbLayer->m_fields->dashOrbs;
         auto& dashOrbEnds = dashOrbLayer->m_fields->dashOrbEnds;
 
