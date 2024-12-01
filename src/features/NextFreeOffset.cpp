@@ -14,15 +14,10 @@ struct GroupIDSource final {
     static constexpr short MAX_VALUE = 9999;
 
     static void getUsedIDs(GameObject* obj, std::unordered_set<short>& used) {
-        for (short i = 0; i < obj->m_groupCount; i += 1) {
-            used.insert(obj->m_groups->at(i));
-        }
-        for (short i = 0; i < obj->m_colorGroupCount; i += 1) {
-            used.insert(obj->m_colorGroups->at(i));
-        }
-        for (short i = 0; i < obj->m_opacityGroupCount; i += 1) {
-            used.insert(obj->m_opacityGroups->at(i));
-        }
+        for (short i = 0; i < obj->m_groupCount; used.insert(obj->m_groups->at(i++)));
+        for (short i = 0; i < obj->m_colorGroupCount; used.insert(obj->m_colorGroups->at(i++)));
+        for (short i = 0; i < obj->m_opacityGroupCount; used.insert(obj->m_opacityGroups->at(i++)));
+
         if (auto eobj = typeinfo_cast<EffectGameObject*>(obj)) {
             used.insert(eobj->m_centerGroupID);
             used.insert(eobj->m_targetGroupID);
