@@ -7,17 +7,17 @@ using namespace geode::prelude;
 
 static bool isProbablyObjectString(std::string_view str) {
     // check if it starts with [0-9]+,
-    size_t ix = 0;
-    for (auto c : str) {
-        if (!(c == ',' && ix > 0) && !(c >= '0' && c <= '9')) {
-            return false;
-        }
-        if (c == ',' && ix > 0) {
-            return true;
-        }
-        ix += 1;
-    }
-    return false;
+    if (str.empty()) return false;
+    if (str[0] < '0' || str[0] > '9') return false;
+
+    auto comma_pos = str.find(',');
+
+    return comma_pos != std::string_view::npos &&
+        std::all_of(str.begin(), str.begin() + (long long)comma_pos + 1,
+            [](char c) {
+                return (c >= '0' && c <= '9') || c == ',';
+            }
+        );
 }
 
 class $modify(EditorUI) {

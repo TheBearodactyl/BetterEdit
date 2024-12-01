@@ -4,6 +4,8 @@
 #include <utils/Warn.hpp>
 #include <Geode/binding/GameObject.hpp>
 #include <Geode/binding/EffectGameObject.hpp>
+#include <unordered_set>
+#include <type_traits>
 
 using namespace geode::prelude;
 
@@ -14,13 +16,26 @@ struct GroupIDSource final {
     static constexpr short MAX_VALUE = 9999;
 
     static void getUsedIDs(GameObject* obj, std::unordered_set<short>& used) {
-        for (short i = 0; i < obj->m_groupCount; used.insert(obj->m_groups->at(i++)));
-        for (short i = 0; i < obj->m_colorGroupCount; used.insert(obj->m_colorGroups->at(i++)));
-        for (short i = 0; i < obj->m_opacityGroupCount; used.insert(obj->m_opacityGroups->at(i++)));
+        auto insertFromArray = [&used](auto* array, short count) {
+            if (array && count > 0) {
+                for (short i = 0; i < count; ++i) {
+                    used.insert((*array)[i]);
+                }
+            }
+        };
 
-        if (auto eobj = typeinfo_cast<EffectGameObject*>(obj)) {
-            used.insert(eobj->m_centerGroupID);
-            used.insert(eobj->m_targetGroupID);
+        insertFromArray(obj->m_groups, obj->m_groupCount);
+        insertFromArray(obj->m_colorGroups, obj->m_colorGroupCount);
+        insertFromArray(obj->m_opacityGroups, obj->m_opacityGroupCount);
+
+        if (auto* eobj = typeinfo_cast<EffectGameObject*>(obj)) {
+            if (eobj->m_centerGroupID != 0) {
+                used.insert(eobj->m_centerGroupID);
+            }
+
+            if (eobj->m_targetGroupID != 0) {
+                used.insert(eobj->m_targetGroupID);
+            }
         }
     }
 };
